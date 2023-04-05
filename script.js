@@ -1,6 +1,6 @@
 const DisplayController = (function(){
     const renderMessage = function(message){
-        console.log(message);
+        messageBox.innerText=message
     }
 
     return{
@@ -12,7 +12,9 @@ const GameBoard = (function(){
     let gameBoard = ["","","","","","","","",""];
 
     const renderBoard = function(){
-        DisplayController.renderMessage(gameBoard);
+        for (let index = 0; index < gameBoard.length; index++) {
+            boxes[index].innerText=gameBoard[index];            
+        }
     };
 
     const updateBoard = function(index,value){
@@ -28,7 +30,6 @@ const GameBoard = (function(){
 })();
 
 const Player = function(name,marker){
-    DisplayController.renderMessage(`Player created with name as ${name} and marker as ${marker}`)
     return {
         name,
         marker
@@ -43,10 +44,11 @@ const Game = (function(){
     const start= function(){
         DisplayController.renderMessage('Game started');
         players=[
-            Player('Saurabh','X'),
-            Player('Aditya','O')
+            Player('Player X','X'),
+            Player('Player O','O')
         ];
         currentPlayerIndex = 0;
+        DisplayController.renderMessage(`${players[currentPlayerIndex].marker}'s turn`)
         gameOver = false;
         GameBoard.renderBoard();
     }
@@ -65,14 +67,17 @@ const Game = (function(){
 
         if(checkForWin(GameBoard.gameBoard)){
             gameOver=true;
-            DisplayController.renderMessage(`${players[currentPlayerIndex].name} won the game!`);
+            DisplayController.renderMessage(`${players[currentPlayerIndex].marker} won the game!`);
+            return;
         }
         else if(checkForTie(GameBoard.gameBoard)){
             gameOver=true;
-            DisplayController.renderMessage('It\'s a tie');
+            DisplayController.renderMessage('It\'s a tie, please restart the game to play again');
+            return;
         }
 
         currentPlayerIndex= currentPlayerIndex === 0 ? 1 : 0;
+        DisplayController.renderMessage(`${players[currentPlayerIndex].marker}'s turn`)
     }
 
     const restart = function(){
@@ -130,3 +135,23 @@ function checkForTie(board){
         return false;
     }
 }
+
+const messageBox = document.querySelector('.message');
+const boxes=document.querySelectorAll('.box');
+boxes.forEach(element => {
+    element.addEventListener('click',handleClick)
+});
+
+function handleClick(event){
+    const index=Number(event.srcElement.dataset.index);
+    Game.handleTurn(index);
+}
+
+const reset=document.querySelector('#reset');
+reset.addEventListener('click',handleReset);
+
+function handleReset(event){
+    Game.restart();
+}
+
+Game.start();
